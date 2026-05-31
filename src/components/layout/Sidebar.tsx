@@ -49,7 +49,7 @@ export function Sidebar() {
       {/* Brand */}
       <div className="px-5 py-5 flex items-center gap-2.5">
         <Logo size={28} />
-        <span className="font-bold text-gray-900 text-[15px] tracking-tight">amico</span>
+        <span className="font-bold text-gray-900 text-[15px] tracking-tight">amico library</span>
       </div>
 
       {/* Nav */}
