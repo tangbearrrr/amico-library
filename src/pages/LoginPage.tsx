@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -34,9 +33,7 @@ export function LoginPage() {
       <div className="w-full max-w-[360px]">
         <div className="mb-8">
           <div className="inline-flex items-center gap-2.5 mb-6">
-            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-white" />
-            </div>
+            <img src="/logo.jpg" alt="amico" className="w-10 h-10 rounded-lg object-contain" />
             <span className="font-bold text-gray-900 text-lg tracking-tight">amico</span>
           </div>
           <h1 className="text-2xl font-semibold text-gray-900">Sign in</h1>

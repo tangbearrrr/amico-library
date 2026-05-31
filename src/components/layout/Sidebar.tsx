@@ -7,6 +7,10 @@ import {
   Users,
   LogOut,
 } from 'lucide-react'
+
+const Logo = ({ size }: { size: number }) => (
+  <img src="/logo.jpg" alt="amico" width={size} height={size} className="rounded-lg object-contain" />
+)
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -44,9 +48,7 @@ export function Sidebar() {
     <aside className="hidden md:flex w-56 flex-shrink-0 h-screen bg-white border-r border-gray-100 flex-col sticky top-0">
       {/* Brand */}
       <div className="px-5 py-5 flex items-center gap-2.5">
-        <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
-          <BookOpen className="w-3.5 h-3.5 text-white" />
-        </div>
+        <Logo size={28} />
         <span className="font-bold text-gray-900 text-[15px] tracking-tight">amico</span>
       </div>
 
@@ -134,9 +136,7 @@ export function MobileTopBar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:hidden bg-white border-b border-gray-100 h-12 flex items-center justify-between px-4">
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center flex-shrink-0">
-          <BookOpen className="w-3 h-3 text-white" />
-        </div>
+        <Logo size={24} />
         <span className="font-bold text-gray-900 text-sm tracking-tight">amico</span>
       </div>
       <div className="flex items-center gap-3">
