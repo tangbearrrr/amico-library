@@ -27,42 +27,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const mountedRef = useRef(true)
-  // Tracks the loaded profile outside React state so the async callback always
-  // sees the current value without stale-closure issues.
   const profileRef = useRef<Profile | null>(null)
+  // Tracks whether the getSession() bootstrap is still in flight so the
+  // onAuthStateChange handler doesn't race it with a concurrent profile fetch.
+  const bootstrappingRef = useRef(true)
 
   useEffect(() => {
     mountedRef.current = true
+    bootstrappingRef.current = true
 
-    // onAuthStateChange fires INITIAL_SESSION synchronously from localStorage,
-    // so getSession() is redundant and creates a race. Use only this.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mountedRef.current) return
-      const authUser = session?.user ?? null
-      setUser(authUser)
-      if (authUser) {
-        // TOKEN_REFRESHED only rotates the access token — profile is unchanged.
-        // SIGNED_IN on tab-focus also fires for an already-authenticated user;
-        // skip the re-fetch if we already have this user's profile to avoid a
-        // loading flash and prevent a transient fetch failure from kicking the
-        // user to /unauthorized.
-        if (event === 'TOKEN_REFRESHED' || (event === 'SIGNED_IN' && profileRef.current?.id === authUser.id)) {
-          setLoading(false)
-          return
-        }
-        setLoading(true)
-        const p = await loadProfile(authUser.id)
-        if (mountedRef.current) {
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        if (!mountedRef.current) return
+        const authUser = session?.user ?? null
+        setUser(authUser)
+        if (authUser) {
+          const p = await loadProfile(authUser.id)
+          if (!mountedRef.current) return
           profileRef.current = p
           setProfile(p)
-          setLoading(false)
         }
+      })
+      .catch(() => { /* session unavailable — treat as signed out */ })
+      .finally(() => {
+        bootstrappingRef.current = false
+        if (mountedRef.current) setLoading(false)
+      })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mountedRef.current) return
+      // INITIAL_SESSION and any events fired while getSession() is still
+      // resolving are handled by the bootstrap above.
+      if (event === 'INITIAL_SESSION' || bootstrappingRef.current) return
+
+      const authUser = session?.user ?? null
+      setUser(authUser)
+
+      if (authUser) {
+        // Skip re-fetch if we already have this user's profile (covers
+        // TOKEN_REFRESHED and SIGNED_IN on tab-focus for the same user).
+        if (profileRef.current?.id === authUser.id) return
+        setLoading(true)
+        const p = await loadProfile(authUser.id)
+        if (!mountedRef.current) return
+        profileRef.current = p
+        setProfile(p)
+        setLoading(false)
       } else {
-        if (mountedRef.current) {
-          profileRef.current = null
-          setProfile(null)
-          setLoading(false)
-        }
+        profileRef.current = null
+        setProfile(null)
       }
     })
 
