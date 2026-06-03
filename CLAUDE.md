@@ -25,7 +25,7 @@ Note: the key is named `PUBLISHABLE_KEY`, not the conventional `ANON_KEY`.
 
 ## Architecture
 
-**Stack**: React 18 + TypeScript, Vite, Tailwind CSS v3, React Router v6, Supabase JS v2. Zustand is listed as a dependency but is not used — all state lives in the data hooks.
+**Stack**: React 18 + TypeScript, Vite, Tailwind CSS v3, React Router v6, Supabase JS v2. UI components are built on shadcn/ui primitives: `class-variance-authority` for variant styling, `clsx` + `tailwind-merge` (via `cn()` in `src/lib/utils.ts`) for class merging, `@radix-ui/react-dialog` for modals, `@radix-ui/react-label` for form labels, and `@radix-ui/react-slot` for the `asChild` pattern on `Button`. Zustand is listed as a dependency but is not used — all state lives in the data hooks.
 
 **Auth flow**: Google OAuth via Supabase Auth. `AuthProvider` (`src/hooks/useAuth.tsx`) subscribes to `onAuthStateChange` and loads the user's `profiles` row. If no profile row exists the user is considered unauthorized. `AuthProvider` exposes `{ user, profile, loading }` via context.
 
