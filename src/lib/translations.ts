@@ -138,7 +138,10 @@ const en = {
   // Unauthorized page
   back: 'Back',
   requestAccess: 'Request Access',
-  requestSent: 'Request sent — an admin will review it shortly.',
+  requestPending: 'Request Pending',
+  requestSent: 'Your request has been submitted. An admin will review and approve your access.',
+  requestPendingNote: "You'll need to sign back in once your access is approved.",
+  signedInAs: 'Signed in as',
   requestError: 'Something went wrong. Please try again.',
   checkingRequest: 'Checking…',
 
@@ -287,7 +290,10 @@ const th: typeof en = {
   // Unauthorized page
   back: 'กลับ',
   requestAccess: 'ขอสิทธิ์เข้าใช้งาน',
-  requestSent: 'ส่งคำขอแล้ว — ผู้ดูแลระบบจะตรวจสอบในไม่ช้า',
+  requestPending: 'รอการอนุมัติ',
+  requestSent: 'ส่งคำขอแล้ว ผู้ดูแลระบบจะตรวจสอบและอนุมัติการเข้าถึงของคุณ',
+  requestPendingNote: 'คุณต้องเข้าสู่ระบบใหม่หลังจากได้รับการอนุมัติ',
+  signedInAs: 'เข้าสู่ระบบในชื่อ',
   requestError: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
   checkingRequest: 'กำลังตรวจสอบ...',
 
