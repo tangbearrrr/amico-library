@@ -23,8 +23,8 @@ export function UnauthorizedPage() {
       .then(({ data }) => setRequestStatus(data ? 'sent' : 'idle'))
   }, [user])
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
+  const handleBack = async () => {
+    await supabase.auth.signOut().catch(() => {})
     navigate('/login', { replace: true })
   }
 
@@ -84,10 +84,14 @@ export function UnauthorizedPage() {
         )}
 
         <button
-          onClick={handleSignOut}
-          className="w-full border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium py-2.5 rounded-xl transition-colors"
+          onClick={handleBack}
+          className={`w-full text-sm font-medium py-2.5 rounded-xl transition-colors ${
+            requestStatus === 'sent'
+              ? 'bg-gray-900 hover:bg-gray-700 text-white'
+              : 'border border-gray-200 hover:bg-gray-50 text-gray-600'
+          }`}
         >
-          {t.signOut}
+          {t.back}
         </button>
       </div>
     </div>

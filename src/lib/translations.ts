@@ -136,6 +136,7 @@ const en = {
   restrictedAccess: 'Access is restricted to authorised staff only',
 
   // Unauthorized page
+  back: 'Back',
   requestAccess: 'Request Access',
   requestSent: 'Request sent — an admin will review it shortly.',
   requestError: 'Something went wrong. Please try again.',
@@ -284,6 +285,7 @@ const th: typeof en = {
   restrictedAccess: 'เข้าถึงได้เฉพาะเจ้าหน้าที่ที่ได้รับอนุญาตเท่านั้น',
 
   // Unauthorized page
+  back: 'กลับ',
   requestAccess: 'ขอสิทธิ์เข้าใช้งาน',
   requestSent: 'ส่งคำขอแล้ว — ผู้ดูแลระบบจะตรวจสอบในไม่ช้า',
   requestError: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
