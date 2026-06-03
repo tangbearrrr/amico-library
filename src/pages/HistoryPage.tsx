@@ -3,6 +3,7 @@ import { Search, Download } from 'lucide-react'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useBooks } from '../hooks/useBooks'
 import { useProfiles } from '../hooks/useProfiles'
+import { useLanguage } from '../hooks/useLanguage'
 import { isOverdue } from '../lib/utils'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Badge } from '../components/ui/Badge'
@@ -13,6 +14,7 @@ export function HistoryPage() {
   const { borrowRecords, loading: recordsLoading } = useBorrowRecords()
   const { books, loading: booksLoading } = useBooks()
   const { profiles, loading: profilesLoading } = useProfiles()
+  const { t, locale } = useLanguage()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [dateFrom, setDateFrom] = useState('')
@@ -57,10 +59,10 @@ export function HistoryPage() {
   }
 
   const statusTabs: { key: StatusFilter; label: string; count: number }[] = [
-    { key: 'all', label: 'All', count: borrowRecords.length },
-    { key: 'borrowed', label: 'Borrowed', count: borrowRecords.filter((r) => r.status === 'borrowed' && !isOverdue(r)).length },
-    { key: 'overdue', label: 'Overdue', count: borrowRecords.filter((r) => isOverdue(r)).length },
-    { key: 'returned', label: 'Returned', count: borrowRecords.filter((r) => r.status === 'returned').length },
+    { key: 'all', label: t.all, count: borrowRecords.length },
+    { key: 'borrowed', label: t.statusBorrowed, count: borrowRecords.filter((r) => r.status === 'borrowed' && !isOverdue(r)).length },
+    { key: 'overdue', label: t.statusOverdue, count: borrowRecords.filter((r) => isOverdue(r)).length },
+    { key: 'returned', label: t.statusReturned, count: borrowRecords.filter((r) => r.status === 'returned').length },
   ]
 
   return (
@@ -69,8 +71,8 @@ export function HistoryPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">History</h1>
-            <p className="text-sm text-gray-400 mt-0.5">Complete borrow & return audit trail</p>
+            <h1 className="text-xl font-semibold text-gray-900">{t.history}</h1>
+            <p className="text-sm text-gray-400 mt-0.5">{t.historySubtitle}</p>
           </div>
           <button
             onClick={exportCSV}
@@ -78,7 +80,7 @@ export function HistoryPage() {
             className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-40"
           >
             <Download className="w-3.5 h-3.5" />
-            Export CSV
+            {t.exportCSV}
           </button>
         </div>
 
@@ -112,7 +114,7 @@ export function HistoryPage() {
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search borrower…"
+                placeholder={t.searchBorrower}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900 bg-gray-50 focus:bg-white"
@@ -136,7 +138,7 @@ export function HistoryPage() {
               />
               {(dateFrom || dateTo || search) && (
                 <button onClick={() => { setDateFrom(''); setDateTo(''); setSearch('') }} className="text-xs text-gray-400 hover:text-gray-600 underline whitespace-nowrap">
-                  Clear
+                  {t.clear}
                 </button>
               )}
             </div>
@@ -152,20 +154,20 @@ export function HistoryPage() {
           ) : (
             <>
               <div className="px-5 py-3 border-b border-gray-50 text-xs text-gray-400">
-                {filtered.length} of {borrowRecords.length} records
+                {filtered.length} {t.of} {borrowRecords.length} {t.records}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-50">
                       {[
-                        { label: 'Borrower', mobile: true },
-                        { label: 'Book', mobile: true },
-                        { label: 'Staff', mobile: false },
-                        { label: 'Borrow Date', mobile: false },
-                        { label: 'Due Date', mobile: true },
-                        { label: 'Return Date', mobile: false },
-                        { label: 'Status', mobile: true },
+                        { label: t.borrower, mobile: true },
+                        { label: t.book, mobile: true },
+                        { label: t.staffCol, mobile: false },
+                        { label: t.borrowDate, mobile: false },
+                        { label: t.dueDate, mobile: true },
+                        { label: t.returnDate, mobile: false },
+                        { label: t.status, mobile: true },
                       ].map(({ label, mobile }) => (
                         <th
                           key={label}
@@ -180,7 +182,7 @@ export function HistoryPage() {
                     {filtered.length === 0 && (
                       <tr>
                         <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-400">
-                          No records match the current filters
+                          {t.noRecordsFound}
                         </td>
                       </tr>
                     )}
@@ -205,25 +207,25 @@ export function HistoryPage() {
                             {staff?.full_name.split(' ')[0] ?? '—'}
                           </td>
                           <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
-                            {new Date(record.borrow_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                            {new Date(record.borrow_date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: '2-digit' })}
                           </td>
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <span className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                              {new Date(record.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                              {new Date(record.due_date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: '2-digit' })}
                             </span>
                           </td>
                           <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
                             {record.return_date
-                              ? new Date(record.return_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
+                              ? new Date(record.return_date).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: '2-digit' })
                               : '—'}
                           </td>
                           <td className="px-4 py-3.5">
                             {record.status === 'returned' ? (
-                              <Badge variant="returned">Returned</Badge>
+                              <Badge variant="returned">{t.statusReturned}</Badge>
                             ) : overdue ? (
-                              <Badge variant="overdue">Overdue</Badge>
+                              <Badge variant="overdue">{t.statusOverdue}</Badge>
                             ) : (
-                              <Badge variant="borrowed">Borrowed</Badge>
+                              <Badge variant="borrowed">{t.statusBorrowed}</Badge>
                             )}
                           </td>
                         </tr>

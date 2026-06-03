@@ -2,6 +2,7 @@ import { BookOpen, BookMarked, AlertTriangle, Library } from 'lucide-react'
 import { useBooks } from '../hooks/useBooks'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
 import { isOverdue } from '../lib/utils'
 import { Badge } from '../components/ui/Badge'
 import { AppLayout } from '../components/layout/AppLayout'
@@ -35,6 +36,7 @@ function StatCard({
 
 export function DashboardPage() {
   const { profile } = useAuth()
+  const { t, locale } = useLanguage()
   const { books, loading: booksLoading } = useBooks()
   const { borrowRecords, loading: recordsLoading } = useBorrowRecords()
 
@@ -54,9 +56,9 @@ export function DashboardPage() {
 
   const greeting = () => {
     const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
+    if (h < 12) return t.goodMorning
+    if (h < 17) return t.goodAfternoon
+    return t.goodEvening
   }
 
   return (
@@ -68,7 +70,7 @@ export function DashboardPage() {
             {greeting()}, {profile?.full_name?.split(' ')[0]}
           </h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            {new Date().toLocaleDateString('en-US', {
+            {new Date().toLocaleDateString(locale, {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -85,14 +87,14 @@ export function DashboardPage() {
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-              <StatCard label="Total Titles" value={totalBooks} icon={Library} sub={`${totalCopies} copies`} />
-              <StatCard label="Available" value={availableCopies} icon={BookOpen} sub="on shelf" accent="text-green-600" />
-              <StatCard label="Borrowed" value={currentlyBorrowed} icon={BookMarked} sub="currently out" accent="text-blue-600" />
+              <StatCard label={t.totalTitles} value={totalBooks} icon={Library} sub={`${totalCopies} ${t.copies}`} />
+              <StatCard label={t.available} value={availableCopies} icon={BookOpen} sub={t.onShelf} accent="text-green-600" />
+              <StatCard label={t.borrowed} value={currentlyBorrowed} icon={BookMarked} sub={t.currentlyOut} accent="text-blue-600" />
               <StatCard
-                label="Overdue"
+                label={t.overdue}
                 value={overdueCount}
                 icon={AlertTriangle}
-                sub={overdueCount > 0 ? 'needs attention' : 'all on time'}
+                sub={overdueCount > 0 ? t.needsAttention : t.allOnTime}
                 accent={overdueCount > 0 ? 'text-red-600' : 'text-gray-900'}
               />
             </div>
@@ -100,17 +102,17 @@ export function DashboardPage() {
             {/* Recent activity */}
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-900">Recent Activity</h2>
-                <span className="text-xs text-gray-400">Last 10 records</span>
+                <h2 className="text-sm font-semibold text-gray-900">{t.recentActivity}</h2>
+                <span className="text-xs text-gray-400">{t.last10Records}</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-50">
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">Borrower</th>
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">Book</th>
-                      <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-medium text-gray-400">Due Date</th>
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">Status</th>
+                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">{t.borrower}</th>
+                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">{t.book}</th>
+                      <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-medium text-gray-400">{t.dueDate}</th>
+                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">{t.status}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -130,7 +132,7 @@ export function DashboardPage() {
                             <div className="text-xs text-gray-400 hidden sm:block">{book?.author}</div>
                           </td>
                           <td className="hidden sm:table-cell px-5 py-3.5 text-sm text-gray-500">
-                            {new Date(record.due_date).toLocaleDateString('en-US', {
+                            {new Date(record.due_date).toLocaleDateString(locale, {
                               month: 'short',
                               day: 'numeric',
                               year: 'numeric',
@@ -138,11 +140,11 @@ export function DashboardPage() {
                           </td>
                           <td className="px-4 sm:px-5 py-3.5">
                             {record.status === 'returned' ? (
-                              <Badge variant="returned">Returned</Badge>
+                              <Badge variant="returned">{t.statusReturned}</Badge>
                             ) : overdue ? (
-                              <Badge variant="overdue">Overdue</Badge>
+                              <Badge variant="overdue">{t.statusOverdue}</Badge>
                             ) : (
-                              <Badge variant="borrowed">Borrowed</Badge>
+                              <Badge variant="borrowed">{t.statusBorrowed}</Badge>
                             )}
                           </td>
                         </tr>

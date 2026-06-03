@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { Sidebar, MobileTopBar, MobileNav } from './Sidebar'
+import { LanguageToggle } from '../ui/LanguageToggle'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -33,6 +34,9 @@ export function AppLayout({ children, adminOnly }: AppLayoutProps) {
       </div>
       <MobileTopBar />
       <MobileNav />
+      <div className="hidden md:block fixed top-4 right-4 z-40">
+        <LanguageToggle size="sm" />
+      </div>
     </>
   )
 }

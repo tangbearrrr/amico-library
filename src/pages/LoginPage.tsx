@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
+import { LanguageToggle } from '../components/ui/LanguageToggle'
 
 export function LoginPage() {
   const { user, profile, loading } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [signingIn, setSigningIn] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,13 +34,17 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-[360px]">
+        <div className="flex justify-end mb-4">
+          <LanguageToggle size="md" />
+        </div>
+
         <div className="mb-8">
           <div className="inline-flex items-center gap-2.5 mb-6">
             <img src="/logo.jpg" alt="amico" className="w-10 h-10 rounded-lg object-contain" />
             <span className="font-bold text-gray-900 text-lg tracking-tight">amico</span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Sign in</h1>
-          <p className="text-sm text-gray-500 mt-1">Library Management System</p>
+          <h1 className="text-2xl font-semibold text-gray-900">{t.signIn}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t.libraryManagementSystem}</p>
         </div>
 
         <button
@@ -56,7 +63,7 @@ export function LoginPage() {
             </svg>
           )}
           <span className="text-sm font-medium text-gray-700">
-            {signingIn ? 'Redirecting…' : 'Continue with Google'}
+            {signingIn ? t.redirecting : t.continueWithGoogle}
           </span>
         </button>
 
@@ -65,7 +72,7 @@ export function LoginPage() {
         )}
 
         <p className="text-xs text-gray-400 mt-6 text-center">
-          Access is restricted to authorised staff only
+          {t.restrictedAccess}
         </p>
       </div>
     </div>

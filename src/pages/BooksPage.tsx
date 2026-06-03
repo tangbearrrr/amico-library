@@ -3,6 +3,7 @@ import { Plus, Search, Pencil, Trash2 } from 'lucide-react'
 import { useBooks } from '../hooks/useBooks'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
 import { getAvailableCopies } from '../lib/utils'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Button } from '../components/ui/Button'
@@ -28,6 +29,7 @@ function BookForm({
   onSubmit: (data: BookFormData) => void
   onCancel: () => void
 }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState<BookFormData>(initial ?? emptyForm)
   const [errors, setErrors] = useState<Partial<Record<keyof BookFormData, string>>>({})
 
@@ -36,8 +38,8 @@ function BookForm({
 
   const validate = () => {
     const e: Partial<Record<keyof BookFormData, string>> = {}
-    if (!form.title.trim()) e.title = 'Title is required'
-    if (form.total_copies < 1) e.total_copies = 'Must have at least 1 copy'
+    if (!form.title.trim()) e.title = t.titleRequired
+    if (form.total_copies < 1) e.total_copies = t.atLeast1Copy
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -50,27 +52,27 @@ function BookForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        label="Title *"
+        label={t.titleLabel}
         value={form.title}
         onChange={(e) => set('title', e.target.value)}
         error={errors.title}
-        placeholder="Book title"
+        placeholder={t.titlePlaceholder}
         autoFocus
       />
       <Input
-        label="Author"
+        label={t.authorLabel}
         value={form.author}
         onChange={(e) => set('author', e.target.value)}
-        placeholder="Author name"
+        placeholder={t.authorPlaceholder}
       />
       <Input
-        label="ISBN"
+        label={t.isbnLabel}
         value={form.isbn}
         onChange={(e) => set('isbn', e.target.value)}
         placeholder="978-0000000000"
       />
       <Input
-        label="Total Copies *"
+        label={t.totalCopiesLabel}
         type="number"
         min={1}
         value={form.total_copies}
@@ -79,10 +81,10 @@ function BookForm({
       />
       <div className="flex gap-2.5 pt-1">
         <Button type="button" variant="secondary" onClick={onCancel} className="flex-1">
-          Cancel
+          {t.cancel}
         </Button>
         <Button type="submit" className="flex-1">
-          Save
+          {t.save}
         </Button>
       </div>
     </form>
@@ -110,6 +112,7 @@ function BookInitial({ title }: { title: string }) {
 
 export function BooksPage() {
   const { profile } = useAuth()
+  const { t } = useLanguage()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook } = useBooks()
   const { borrowRecords, loading: recordsLoading } = useBorrowRecords()
   const [search, setSearch] = useState('')
@@ -142,12 +145,12 @@ export function BooksPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Books</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{books.length} titles in the library</p>
+            <h1 className="text-xl font-semibold text-gray-900">{t.books}</h1>
+            <p className="text-sm text-gray-400 mt-0.5">{books.length} {t.titlesInLibrary}</p>
           </div>
           <Button onClick={() => setAddOpen(true)} size="sm">
             <Plus className="w-3.5 h-3.5" />
-            Add Book
+            {t.addBook}
           </Button>
         </div>
 
@@ -156,7 +159,7 @@ export function BooksPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by title or author…"
+            placeholder={t.searchTitleOrAuthor}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
@@ -173,10 +176,10 @@ export function BooksPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">Book</th>
-                  <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-medium text-gray-400">ISBN</th>
-                  <th className="hidden sm:table-cell text-center px-4 py-3 text-xs font-medium text-gray-400">Copies</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-400">Avail.</th>
+                  <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium text-gray-400">{t.book}</th>
+                  <th className="hidden sm:table-cell text-left px-5 py-3 text-xs font-medium text-gray-400">{t.isbn}</th>
+                  <th className="hidden sm:table-cell text-center px-4 py-3 text-xs font-medium text-gray-400">{t.copiesCol}</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-400">{t.availCol}</th>
                   <th className="px-4 sm:px-5 py-3" />
                 </tr>
               </thead>
@@ -184,7 +187,7 @@ export function BooksPage() {
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-400">
-                      No books found
+                      {t.noBooksFound}
                     </td>
                   </tr>
                 )}
@@ -243,11 +246,11 @@ export function BooksPage() {
         </div>
       </div>
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add Book">
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title={t.addBook}>
         <BookForm onSubmit={handleAdd} onCancel={() => setAddOpen(false)} />
       </Modal>
 
-      <Modal open={!!editBook} onClose={() => setEditBook(null)} title="Edit Book">
+      <Modal open={!!editBook} onClose={() => setEditBook(null)} title={t.editBook}>
         {editBook && (
           <BookForm
             initial={{ title: editBook.title, author: editBook.author, isbn: editBook.isbn ?? '', total_copies: editBook.total_copies }}
@@ -264,9 +267,9 @@ export function BooksPage() {
           if (deleteTarget) await deleteBook(deleteTarget.id)
           setDeleteTarget(null)
         }}
-        title="Delete Book"
-        message={`Delete "${deleteTarget?.title}"? This will also remove all associated borrow records.`}
-        confirmLabel="Delete"
+        title={t.deleteBook}
+        message={`"${deleteTarget?.title}"${t.deleteBookConfirmSuffix}`}
+        confirmLabel={t.delete}
         variant="danger"
       />
     </AppLayout>

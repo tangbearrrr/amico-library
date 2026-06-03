@@ -13,12 +13,14 @@ const Logo = ({ size }: { size: number }) => (
 )
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
+import { useLanguage } from '../../hooks/useLanguage'
+import { LanguageToggle } from '../ui/LanguageToggle'
 
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/books', icon: BookOpen, label: 'Books' },
-  { to: '/borrow', icon: BookMarked, label: 'Borrow' },
-  { to: '/history', icon: History, label: 'History' },
+  { to: '/dashboard', icon: LayoutDashboard, key: 'dashboard' as const },
+  { to: '/books', icon: BookOpen, key: 'books' as const },
+  { to: '/borrow', icon: BookMarked, key: 'borrowReturn' as const },
+  { to: '/history', icon: History, key: 'history' as const },
 ]
 
 function UserAvatar({ name }: { name: string }) {
@@ -37,6 +39,7 @@ function UserAvatar({ name }: { name: string }) {
 
 export function Sidebar() {
   const { profile } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -54,7 +57,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon: Icon, key }) => (
           <NavLink
             key={to}
             to={to}
@@ -70,7 +73,7 @@ export function Sidebar() {
             {({ isActive }) => (
               <>
                 <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-gray-900' : 'text-gray-400'}`} />
-                {label === 'Borrow' ? 'Borrow & Return' : label}
+                {t[key]}
               </>
             )}
           </NavLink>
@@ -91,7 +94,7 @@ export function Sidebar() {
             {({ isActive }) => (
               <>
                 <Users className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-gray-900' : 'text-gray-400'}`} />
-                Users
+                {t.users}
               </>
             )}
           </NavLink>
@@ -117,7 +120,7 @@ export function Sidebar() {
           className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
         >
           <LogOut className="w-4 h-4 text-gray-400" />
-          Sign out
+          {t.signOut}
         </button>
       </div>
     </aside>
@@ -126,6 +129,7 @@ export function Sidebar() {
 
 export function MobileTopBar() {
   const { profile } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -143,6 +147,7 @@ export function MobileTopBar() {
         {profile && (
           <span className="text-xs text-gray-400 capitalize">{profile.role}</span>
         )}
+        <LanguageToggle size="sm" />
         <button
           onClick={handleLogout}
           className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -157,16 +162,17 @@ export function MobileTopBar() {
 
 export function MobileNav() {
   const { profile } = useAuth()
+  const { t } = useLanguage()
 
   const allNavItems = [
     ...navItems,
-    ...(profile?.role === 'admin' ? [{ to: '/users', icon: Users, label: 'Users' }] : []),
+    ...(profile?.role === 'admin' ? [{ to: '/users', icon: Users, key: 'users' as const }] : []),
   ]
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
       <div className="flex items-center justify-around px-1 pt-2 pb-3">
-        {allNavItems.map(({ to, icon: Icon, label }) => (
+        {allNavItems.map(({ to, icon: Icon, key }) => (
           <NavLink
             key={to}
             to={to}
@@ -180,7 +186,7 @@ export function MobileNav() {
                 <span
                   className={`text-[9px] font-medium transition-colors ${isActive ? 'text-gray-900' : 'text-gray-400'}`}
                 >
-                  {label}
+                  {t[key]}
                 </span>
               </div>
             )}

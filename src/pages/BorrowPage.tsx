@@ -3,6 +3,7 @@ import { BookMarked, RotateCcw, AlertTriangle, ChevronDown } from 'lucide-react'
 import { useBooks } from '../hooks/useBooks'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useAuth } from '../hooks/useAuth'
+import { useLanguage } from '../hooks/useLanguage'
 import { getAvailableCopies, isOverdue } from '../lib/utils'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Button } from '../components/ui/Button'
@@ -22,6 +23,7 @@ const defaultDue = new Date(Date.now() + 21 * 86400000).toISOString().split('T')
 
 export function BorrowPage() {
   const { profile } = useAuth()
+  const { t, locale } = useLanguage()
   const { books } = useBooks()
   const { borrowRecords, addBorrowRecord, returnBook } = useBorrowRecords()
 
@@ -54,9 +56,9 @@ export function BorrowPage() {
 
   const validate = () => {
     const e: Partial<BorrowFormData> = {}
-    if (!form.book_id) e.book_id = 'Select a book'
-    if (!form.borrower_name.trim()) e.borrower_name = 'Borrower name is required'
-    if (!form.due_date || form.due_date <= today) e.due_date = 'Due date must be in the future'
+    if (!form.book_id) e.book_id = t.selectBookError
+    if (!form.borrower_name.trim()) e.borrower_name = t.borrowerNameRequired
+    if (!form.due_date || form.due_date <= today) e.due_date = t.dueDateFutureError
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -89,8 +91,8 @@ export function BorrowPage() {
     <AppLayout>
       <div className="p-4 sm:p-8 max-w-6xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">Borrow & Return</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Record loans and process returns</p>
+          <h1 className="text-xl font-semibold text-gray-900">{t.borrowReturn}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{t.borrowPageSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -98,12 +100,12 @@ export function BorrowPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100">
-                <h2 className="text-sm font-semibold text-gray-900">Record a Borrow</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t.recordABorrow}</h2>
               </div>
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 {/* Book selector */}
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700">Book *</label>
+                  <label className="block text-sm font-medium text-gray-700">{t.book} *</label>
                   <div className="relative">
                     <button
                       type="button"
@@ -113,7 +115,7 @@ export function BorrowPage() {
                         ${selectedBook ? 'text-gray-900' : 'text-gray-400'}`}
                     >
                       <span className="truncate">
-                        {selectedBook ? selectedBook.title : 'Select a book…'}
+                        {selectedBook ? selectedBook.title : t.selectABook}
                       </span>
                       <ChevronDown className={`w-4 h-4 flex-shrink-0 text-gray-400 transition-transform ${bookOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -126,14 +128,14 @@ export function BorrowPage() {
                               type="text"
                               value={bookSearch}
                               onChange={(e) => setBookSearch(e.target.value)}
-                              placeholder="Search books…"
+                              placeholder={t.searchBooks}
                               className="w-full px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
                               autoFocus
                             />
                           </div>
                           <div className="max-h-48 overflow-y-auto">
                             {filteredBooks.length === 0 && (
-                              <div className="px-3 py-4 text-sm text-gray-400 text-center">No available books</div>
+                              <div className="px-3 py-4 text-sm text-gray-400 text-center">{t.noAvailableBooks}</div>
                             )}
                             {filteredBooks.map((book) => {
                               const av = getAvailableCopies(book.id, book, borrowRecords)
@@ -153,7 +155,7 @@ export function BorrowPage() {
                                     <div className="text-sm text-gray-900">{book.title}</div>
                                     <div className="text-xs text-gray-400">{book.author}</div>
                                   </div>
-                                  <span className="text-xs text-green-600 font-medium">{av} avail.</span>
+                                  <span className="text-xs text-green-600 font-medium">{av} {t.availSuffix}</span>
                                 </button>
                               )
                             })}
@@ -166,24 +168,24 @@ export function BorrowPage() {
                 </div>
 
                 <Input
-                  label="Borrower Name *"
+                  label={t.borrowerNameLabel}
                   value={form.borrower_name}
                   onChange={(e) => set('borrower_name', e.target.value)}
                   error={errors.borrower_name}
-                  placeholder="Full name"
+                  placeholder={t.borrowerNamePlaceholder}
                 />
 
                 <Textarea
-                  label="Note / Phone"
+                  label={t.notePhoneLabel}
                   value={form.borrower_note}
                   onChange={(e) => set('borrower_note', e.target.value)}
-                  placeholder="Phone number, department, etc."
+                  placeholder={t.notePhonePlaceholder}
                   rows={2}
-                  hint="Optional"
+                  hint={t.optional}
                 />
 
                 <Input
-                  label="Due Date *"
+                  label={t.dueDateLabel}
                   type="date"
                   value={form.due_date}
                   onChange={(e) => set('due_date', e.target.value)}
@@ -193,12 +195,12 @@ export function BorrowPage() {
 
                 <Button type="submit" className="w-full">
                   <BookMarked className="w-4 h-4" />
-                  Record Borrow
+                  {t.recordBorrowBtn}
                 </Button>
 
                 {submitted && (
                   <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
-                    <span>✓</span> Borrow recorded successfully
+                    {t.borrowSuccess}
                   </div>
                 )}
               </form>
@@ -210,13 +212,13 @@ export function BorrowPage() {
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-semibold text-gray-900">Active Borrows</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">{activeBorrows.length} books out</p>
+                  <h2 className="text-sm font-semibold text-gray-900">{t.activeBorrows}</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">{activeBorrows.length} {t.booksOut}</p>
                 </div>
                 {activeBorrows.filter((r) => isOverdue(r)).length > 0 && (
                   <div className="flex items-center gap-1.5 text-xs text-red-600 bg-red-50 border border-red-100 rounded-full px-2.5 py-1">
                     <AlertTriangle className="w-3 h-3" />
-                    {activeBorrows.filter((r) => isOverdue(r)).length} overdue
+                    {activeBorrows.filter((r) => isOverdue(r)).length} {t.overdueCount}
                   </div>
                 )}
               </div>
@@ -224,10 +226,10 @@ export function BorrowPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-50">
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">Borrower</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">Book</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">Due</th>
-                      <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-medium text-gray-400">Status</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">{t.borrower}</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">{t.book}</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-400">{t.dueCol}</th>
+                      <th className="hidden sm:table-cell text-left px-4 py-3 text-xs font-medium text-gray-400">{t.status}</th>
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
@@ -235,7 +237,7 @@ export function BorrowPage() {
                     {activeBorrows.length === 0 && (
                       <tr>
                         <td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">
-                          No active borrows
+                          {t.noActiveBorrows}
                         </td>
                       </tr>
                     )}
@@ -258,15 +260,15 @@ export function BorrowPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={`text-xs ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                              {new Date(record.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {new Date(record.due_date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}
                             </span>
                             {overdue && (
-                              <span className="sm:hidden ml-1 text-xs text-red-600 font-medium">· Overdue</span>
+                              <span className="sm:hidden ml-1 text-xs text-red-600 font-medium">· {t.statusOverdue}</span>
                             )}
                           </td>
                           <td className="hidden sm:table-cell px-4 py-3">
                             <Badge variant={overdue ? 'overdue' : 'borrowed'}>
-                              {overdue ? 'Overdue' : 'Borrowed'}
+                              {overdue ? t.statusOverdue : t.statusBorrowed}
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
@@ -275,7 +277,7 @@ export function BorrowPage() {
                               className="flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1 transition-colors whitespace-nowrap"
                             >
                               <RotateCcw className="w-3 h-3" />
-                              Return
+                              {t.returnBtn}
                             </button>
                           </td>
                         </tr>
@@ -296,9 +298,9 @@ export function BorrowPage() {
           if (returnTarget) await returnBook(returnTarget)
           setReturnTarget(null)
         }}
-        title="Confirm Return"
-        message="Mark this book as returned today?"
-        confirmLabel="Mark Returned"
+        title={t.confirmReturnTitle}
+        message={t.confirmReturnMsg}
+        confirmLabel={t.markReturned}
       />
     </AppLayout>
   )
