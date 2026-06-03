@@ -37,7 +37,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
               <X className="w-4 h-4" />
             </DialogPrimitive.Close>
           </div>
-          <div className="p-5">{children}</div>
+          <div className="p-5 overflow-y-auto max-h-[calc(90dvh-4rem)]">{children}</div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
