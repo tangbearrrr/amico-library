@@ -150,7 +150,58 @@ export function UsersPage() {
 
                   return (
                     <tr key={user.id} className={`transition-colors ${isSelf ? 'bg-gray-50/50' : 'hover:bg-gray-50'}`}>
-                      <td className="px-4 sm:px-5 py-4">
+                      {/* Mobile card layout */}
+                      <td colSpan={5} className="sm:hidden px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <UserAvatar name={user.full_name} avatarUrl={user.avatar_url} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-sm font-medium text-gray-900 truncate">{user.full_name}</span>
+                              {isSelf && (
+                                <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{t.youLabel}</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-400 truncate">{user.email}</div>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              {isSelf ? (
+                                <Badge variant={user.role === 'admin' ? 'admin' : 'staff'}>
+                                  {user.role === 'admin' ? t.adminRole : t.staffRole}
+                                </Badge>
+                              ) : (
+                                <>
+                                  <select
+                                    value={user.role}
+                                    onChange={(e) => updateUserRole(user.id, e.target.value as 'admin' | 'staff')}
+                                    disabled={isLastAdmin}
+                                    className="text-sm border border-gray-200 rounded-lg px-2.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+                                  >
+                                    <option value="admin">{t.adminRole}</option>
+                                    <option value="staff">{t.staffRole}</option>
+                                  </select>
+                                  {user.role === 'admin' ? (
+                                    <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
+                                  ) : (
+                                    <UserCheck className="w-3.5 h-3.5 text-gray-400" />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {!isSelf && !isLastAdmin ? (
+                            <button
+                              onClick={() => setDeleteTarget(user)}
+                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <div className="w-7 h-7 flex-shrink-0" />
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Desktop table layout */}
+                      <td className="hidden sm:table-cell px-5 py-4">
                         <div className="flex items-center gap-3">
                           <UserAvatar name={user.full_name} avatarUrl={user.avatar_url} />
                           <div className="min-w-0">
@@ -160,12 +211,11 @@ export function UsersPage() {
                                 <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{t.youLabel}</span>
                               )}
                             </div>
-                            <div className="text-xs text-gray-400 truncate sm:hidden">{user.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="hidden sm:table-cell px-5 py-4 text-sm text-gray-500">{user.email}</td>
-                      <td className="px-4 sm:px-5 py-4">
+                      <td className="hidden sm:table-cell px-5 py-4">
                         {isSelf ? (
                           <Badge variant={user.role === 'admin' ? 'admin' : 'staff'}>
                             {user.role === 'admin' ? t.adminRole : t.staffRole}
@@ -192,7 +242,7 @@ export function UsersPage() {
                       <td className="hidden sm:table-cell px-5 py-4 text-sm text-gray-400">
                         {new Date(user.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </td>
-                      <td className="px-4 sm:px-5 py-4">
+                      <td className="hidden sm:table-cell px-5 py-4">
                         <div className="flex justify-end">
                           {!isSelf && !isLastAdmin ? (
                             <button
