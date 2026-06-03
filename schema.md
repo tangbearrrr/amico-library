@@ -1,8 +1,9 @@
 # Database Schema
 
-Three tables backed by Supabase (PostgreSQL). No public access — every table has RLS enabled and all rows are reachable only by authenticated users whose `profiles` row exists.
+Four tables backed by Supabase (PostgreSQL). No public access — every table has RLS enabled and all rows are reachable only by authenticated users whose `profiles` row exists.
 
-Full setup script: [`supabase/schema.sql`](supabase/schema.sql)
+Full setup script: [`supabase/schema.sql`](supabase/schema.sql)  
+Access requests migration: [`supabase/access_requests_migration.sql`](supabase/access_requests_migration.sql)
 
 ---
 
@@ -11,7 +12,9 @@ Full setup script: [`supabase/schema.sql`](supabase/schema.sql)
 ```
 auth.users  (Supabase-managed)
     │
-    └── profiles  (1:1)
+    ├── access_requests (1:1, users awaiting approval)
+    │
+    └── profiles  (1:1, approved staff/admins)
           │
           ├── books.created_by        (1:N)
           │
@@ -23,6 +26,22 @@ auth.users  (Supabase-managed)
 ---
 
 ## Tables
+
+### `access_requests`
+
+One row per user awaiting access approval. Created when an authenticated Google user has no `profiles` row and submits an access request. Admins approve or reject; approval triggers manual profile creation.
+
+| Column | Type | Constraints | Notes |
+|--------|------|-------------|-------|
+| `id` | `uuid` | PK DEFAULT gen_random_uuid() | — |
+| `user_id` | `uuid` | NOT NULL, UNIQUE, FK → `auth.users(id)` ON DELETE CASCADE | One request per auth user |
+| `email` | `text` | NOT NULL | Pulled from Google OAuth |
+| `full_name` | `text` | — | Pulled from Google OAuth |
+| `status` | `text` | NOT NULL DEFAULT 'pending', CHECK IN ('pending', 'approved', 'rejected') | Updated by admin |
+| `requested_at` | `timestamptz` | NOT NULL DEFAULT now() | — |
+| `avatar_url` | `text` | — | Google profile photo URL |
+
+---
 
 ### `profiles`
 
@@ -128,7 +147,20 @@ All tables have RLS enabled. Authenticated users can read everything; writes are
 
 | Table | Operation | Allowed roles |
 |-------|-----------|---------------|
+| `access_requests` | SELECT | Owner (own row) or `admin` |
+| `access_requests` | INSERT | Any authenticated (own `user_id` only) |
+| `access_requests` | UPDATE | `admin` |
+| `access_requests` | DELETE | `admin` |
 | `profiles` | SELECT | Any authenticated |
+
+### `access_requests` policies
+
+| Policy name | Operation | Rule |
+|-------------|-----------|------|
+| `access_requests_insert_self` | INSERT | `WITH CHECK (user_id = auth.uid())` — users can only submit for themselves |
+| `access_requests_select` | SELECT | `USING (user_id = auth.uid() OR get_my_role() = 'admin')` — own row or admin |
+| `access_requests_update_admin` | UPDATE | `USING (get_my_role() = 'admin')` |
+| `access_requests_delete_admin` | DELETE | `USING (get_my_role() = 'admin')` |
 | `profiles` | INSERT / UPDATE / DELETE | `admin` |
 | `books` | SELECT | Any authenticated |
 | `books` | INSERT / UPDATE | `admin`, `staff` |

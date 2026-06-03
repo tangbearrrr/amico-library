@@ -45,6 +45,6 @@ Note: the key is named `PUBLISHABLE_KEY`, not the conventional `ANON_KEY`.
 
 ## Database
 
-Full schema is in `supabase/schema.sql`. See `SCHEMA.md` for table definitions, RLS policies, indexes, and design decisions.
+Full schema is in `supabase/schema.sql`. Access requests migration is in `supabase/access_requests_migration.sql`. See `SCHEMA.md` for table definitions, RLS policies, indexes, and design decisions.
 
-Three tables: `profiles`, `books`, `borrow_records`. All have RLS enabled — authenticated users with a `profiles` row can read everything; writes are role-gated.
+Four tables: `access_requests`, `profiles`, `books`, `borrow_records`. All have RLS enabled — authenticated users with a `profiles` row can read everything; writes are role-gated. `access_requests` holds pending/approved/rejected requests from users without a profile row.
