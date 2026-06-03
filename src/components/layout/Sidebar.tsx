@@ -23,13 +23,11 @@ const navItems = [
   { to: '/history', icon: History, key: 'history' as const },
 ]
 
-function UserAvatar({ name }: { name: string }) {
-  const initials = name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
+function UserAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  if (avatarUrl) {
+    return <img src={avatarUrl} alt={name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" referrerPolicy="no-referrer" />
+  }
+  const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div className="w-7 h-7 rounded-full bg-gray-900 flex items-center justify-center text-[10px] font-semibold text-white flex-shrink-0">
       {initials}
@@ -38,7 +36,7 @@ function UserAvatar({ name }: { name: string }) {
 }
 
 export function Sidebar() {
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
   const { t } = useLanguage()
   const navigate = useNavigate()
 
@@ -105,7 +103,10 @@ export function Sidebar() {
       <div className="p-3 border-t border-gray-100 space-y-1">
         {profile && (
           <div className="flex items-center gap-2.5 px-3 py-2">
-            <UserAvatar name={profile.full_name} />
+            <UserAvatar
+              name={profile.full_name}
+              avatarUrl={user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? profile.avatar_url}
+            />
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate leading-tight">
                 {profile.full_name.split(' ')[0]}

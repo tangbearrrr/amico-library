@@ -134,6 +134,18 @@ const en = {
   continueWithGoogle: 'Continue with Google',
   redirecting: 'Redirecting…',
   restrictedAccess: 'Access is restricted to authorised staff only',
+
+  // Unauthorized page
+  requestAccess: 'Request Access',
+  requestSent: 'Request sent — an admin will review it shortly.',
+  requestError: 'Something went wrong. Please try again.',
+  checkingRequest: 'Checking…',
+
+  // Access requests (admin)
+  pendingRequests: 'Pending Requests',
+  pendingRequestsSubtitle: 'users waiting for access',
+  approve: 'Approve',
+  requested: 'Requested',
 }
 
 const th: typeof en = {
@@ -270,6 +282,18 @@ const th: typeof en = {
   continueWithGoogle: 'เข้าสู่ระบบด้วย Google',
   redirecting: 'กำลังเปลี่ยนหน้า...',
   restrictedAccess: 'เข้าถึงได้เฉพาะเจ้าหน้าที่ที่ได้รับอนุญาตเท่านั้น',
+
+  // Unauthorized page
+  requestAccess: 'ขอสิทธิ์เข้าใช้งาน',
+  requestSent: 'ส่งคำขอแล้ว — ผู้ดูแลระบบจะตรวจสอบในไม่ช้า',
+  requestError: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
+  checkingRequest: 'กำลังตรวจสอบ...',
+
+  // Access requests (admin)
+  pendingRequests: 'คำขอที่รออนุมัติ',
+  pendingRequestsSubtitle: 'ผู้ใช้ที่รออนุมัติการเข้าใช้งาน',
+  approve: 'อนุมัติ',
+  requested: 'ขอเมื่อ',
 }
 
 export const translations = { en, th }

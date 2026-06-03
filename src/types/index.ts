@@ -18,6 +18,16 @@ export interface Book {
   created_by: string
 }
 
+export interface AccessRequest {
+  id: string
+  user_id: string
+  email: string
+  full_name: string | null
+  avatar_url: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  requested_at: string
+}
+
 export interface BorrowRecord {
   id: string
   book_id: string

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ShieldCheck, UserCheck, Trash2, UserPlus } from 'lucide-react'
+import { ShieldCheck, UserCheck, Trash2, UserPlus, Clock } from 'lucide-react'
 import { useProfiles } from '../hooks/useProfiles'
+import { useAccessRequests } from '../hooks/useAccessRequests'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import { AppLayout } from '../components/layout/AppLayout'
@@ -10,7 +11,10 @@ import { Input, Select } from '../components/ui/Input'
 import { Modal, ConfirmModal } from '../components/ui/Modal'
 import type { Profile } from '../types'
 
-function UserAvatar({ name }: { name: string }) {
+function UserAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  if (avatarUrl) {
+    return <img src={avatarUrl} alt={name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" referrerPolicy="no-referrer" />
+  }
   const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-xs font-semibold text-white flex-shrink-0">
@@ -25,6 +29,9 @@ export function UsersPage() {
   const { profile: currentUser } = useAuth()
   const { t, locale } = useLanguage()
   const { profiles, loading, updateUserRole, removeUser, addUser } = useProfiles()
+  const { requests, approveRequest, deleteRequest } = useAccessRequests()
+  const [approvingId, setApprovingId] = useState<string | null>(null)
+  const [approveError, setApproveError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -32,6 +39,14 @@ export function UsersPage() {
   const [saving, setSaving] = useState(false)
 
   const adminCount = profiles.filter((u) => u.role === 'admin').length
+
+  const handleApprove = async (req: import('../types').AccessRequest) => {
+    setApprovingId(req.id)
+    setApproveError(null)
+    const err = await approveRequest(req)
+    setApprovingId(null)
+    if (err) setApproveError(err)
+  }
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,6 +80,46 @@ export function UsersPage() {
           </Button>
         </div>
 
+        {/* Pending Access Requests */}
+        {requests.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-4 h-4 text-blue-500" />
+              <h2 className="text-sm font-semibold text-gray-900">{t.pendingRequests}</h2>
+              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                {requests.length}
+              </span>
+              <span className="text-xs text-gray-400">{t.pendingRequestsSubtitle}</span>
+            </div>
+            {approveError && <p className="text-xs text-red-500 mb-2">{approveError}</p>}
+            <div className="bg-white rounded-xl border border-blue-100 overflow-hidden divide-y divide-gray-50">
+              {requests.map((req) => (
+                <div key={req.id} className="flex items-center gap-3 px-4 sm:px-5 py-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-700 flex-shrink-0">
+                    {(req.full_name ?? req.email).charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-900 truncate">
+                      {req.full_name ?? '—'}
+                    </div>
+                    <div className="text-xs text-gray-400 truncate">{req.email}</div>
+                  </div>
+                  <div className="hidden sm:block text-xs text-gray-400 whitespace-nowrap">
+                    {t.requested} {new Date(req.requested_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                  <Button
+                    size="sm"
+                    loading={approvingId === req.id}
+                    onClick={() => handleApprove(req)}
+                  >
+                    {t.approve}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Notice */}
         <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-5">
           <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
@@ -97,7 +152,7 @@ export function UsersPage() {
                     <tr key={user.id} className={`transition-colors ${isSelf ? 'bg-gray-50/50' : 'hover:bg-gray-50'}`}>
                       <td className="px-4 sm:px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <UserAvatar name={user.full_name} />
+                          <UserAvatar name={user.full_name} avatarUrl={user.avatar_url} />
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-medium text-gray-900 truncate">{user.full_name}</span>
@@ -177,7 +232,13 @@ export function UsersPage() {
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={async () => { if (deleteTarget) await removeUser(deleteTarget.id); setDeleteTarget(null) }}
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await removeUser(deleteTarget.id)
+            await deleteRequest(deleteTarget.id)
+          }
+          setDeleteTarget(null)
+        }}
         title={t.removeUser}
         message={`${deleteTarget?.full_name}${t.removeUserConfirmSuffix}`}
         confirmLabel={t.remove}
