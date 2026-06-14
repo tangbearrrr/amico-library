@@ -129,7 +129,7 @@ export function BorrowPage() {
                               value={bookSearch}
                               onChange={(e) => setBookSearch(e.target.value)}
                               placeholder={t.searchBooks}
-                              className="w-full px-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                              className="w-full px-3 py-1.5 text-base md:text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
                               autoFocus
                             />
                           </div>

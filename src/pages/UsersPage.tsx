@@ -173,7 +173,7 @@ export function UsersPage() {
                                     value={user.role}
                                     onChange={(e) => updateUserRole(user.id, e.target.value as 'admin' | 'staff')}
                                     disabled={isLastAdmin}
-                                    className="text-sm border border-gray-200 rounded-lg px-2.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className="text-base md:text-sm border border-gray-200 rounded-lg px-2.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
                                   >
                                     <option value="admin">{t.adminRole}</option>
                                     <option value="staff">{t.staffRole}</option>
@@ -226,7 +226,7 @@ export function UsersPage() {
                               value={user.role}
                               onChange={(e) => updateUserRole(user.id, e.target.value as 'admin' | 'staff')}
                               disabled={isSelf || isLastAdmin}
-                              className="text-sm border border-gray-200 rounded-lg px-2.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="text-base md:text-sm border border-gray-200 rounded-lg px-2.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               <option value="admin">{t.adminRole}</option>
                               <option value="staff">{t.staffRole}</option>

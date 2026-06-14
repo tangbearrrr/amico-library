@@ -162,7 +162,7 @@ export function BooksPage() {
             placeholder={t.searchTitleOrAuthor}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2 text-base md:text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
           />
         </div>
 

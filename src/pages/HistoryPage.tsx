@@ -117,7 +117,7 @@ export function HistoryPage() {
                 placeholder={t.searchBorrower}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900 bg-gray-50 focus:bg-white"
+                className="w-full pl-8 pr-3 py-1.5 text-base md:text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900 bg-gray-50 focus:bg-white"
               />
             </div>
 
@@ -127,14 +127,14 @@ export function HistoryPage() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="flex-1 sm:flex-none px-2 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="flex-1 sm:flex-none px-2 py-1.5 text-base md:text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
               <span>—</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="flex-1 sm:flex-none px-2 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="flex-1 sm:flex-none px-2 py-1.5 text-base md:text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
               {(dateFrom || dateTo || search) && (
                 <button onClick={() => { setDateFrom(''); setDateTo(''); setSearch('') }} className="text-xs text-gray-400 hover:text-gray-600 underline whitespace-nowrap">
