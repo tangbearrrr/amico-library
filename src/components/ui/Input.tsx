@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes 
 import { cn } from '../../lib/utils'
 
 const labelBase = 'block text-sm font-medium text-gray-700'
-const fieldBase = 'w-full rounded-lg border px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors'
+const fieldBase = 'w-full rounded-lg border px-3 py-2 text-base md:text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
