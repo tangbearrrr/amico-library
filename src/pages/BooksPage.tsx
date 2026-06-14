@@ -183,16 +183,18 @@ export function BooksPage() {
                   const available = getAvailableCopies(book.id, book, borrowRecords)
                   return (
                     <div key={book.id} className="bg-white rounded-xl border border-gray-100 p-4">
-                      <div className="flex items-start gap-3 mb-3">
+                      <div className="flex items-start gap-3">
                         <BookInitial title={book.title} />
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-medium text-gray-900">{book.title}</div>
                           {book.author && <div className="text-xs text-gray-400 mt-0.5">{book.author}</div>}
                           {book.isbn && <div className="text-xs text-gray-400 font-mono mt-0.5">{book.isbn}</div>}
                         </div>
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100">
+                        <div className="flex items-center gap-1.5">
                           <span
-                            className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
+                            className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold ${
                               available === 0
                                 ? 'bg-red-50 text-red-600'
                                 : available <= 1
@@ -204,24 +206,22 @@ export function BooksPage() {
                           </span>
                           <span className="text-xs text-gray-400">{book.total_copies} {t.copies}</span>
                         </div>
-                      </div>
-                      <div className="flex gap-2 pt-3 border-t border-gray-50">
-                        <button
-                          onClick={() => setEditBook(book)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                          {t.edit}
-                        </button>
-                        {profile?.role === 'admin' && (
+                        <div className="flex items-center gap-0.5">
                           <button
-                            onClick={() => setDeleteTarget(book)}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                            onClick={() => setEditBook(book)}
+                            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            {t.delete}
+                            <Pencil className="w-3.5 h-3.5" />
                           </button>
-                        )}
+                          {profile?.role === 'admin' && (
+                            <button
+                              onClick={() => setDeleteTarget(book)}
+                              className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )
