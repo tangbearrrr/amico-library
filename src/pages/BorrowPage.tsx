@@ -15,11 +15,16 @@ interface BorrowFormData {
   book_id: string
   borrower_name: string
   borrower_note: string
-  due_date: string
+  borrow_days: number
 }
 
+const DURATION_PRESETS = [7]
+const DEFAULT_DURATION = 7
+const CUSTOM_DURATION = -1
+
 const today = new Date().toISOString().split('T')[0]
-const defaultDue = new Date(Date.now() + 21 * 86400000).toISOString().split('T')[0]
+
+const addDays = (days: number) => new Date(Date.now() + days * 86400000).toISOString().split('T')[0]
 
 export function BorrowPage() {
   const { profile } = useAuth()
@@ -31,15 +36,16 @@ export function BorrowPage() {
     book_id: '',
     borrower_name: '',
     borrower_note: '',
-    due_date: defaultDue,
+    borrow_days: DEFAULT_DURATION,
   })
-  const [errors, setErrors] = useState<Partial<BorrowFormData>>({})
+  const [durationMode, setDurationMode] = useState<number>(DEFAULT_DURATION)
+  const [errors, setErrors] = useState<Partial<Record<keyof BorrowFormData, string>>>({})
   const [submitted, setSubmitted] = useState(false)
   const [returnTarget, setReturnTarget] = useState<string | null>(null)
   const [bookSearch, setBookSearch] = useState('')
   const [bookOpen, setBookOpen] = useState(false)
 
-  const set = (field: keyof BorrowFormData, value: string) =>
+  const set = (field: 'book_id' | 'borrower_name' | 'borrower_note', value: string) =>
     setForm((f) => ({ ...f, [field]: value }))
 
   const availableBooks = books.filter(
@@ -55,10 +61,10 @@ export function BorrowPage() {
   const selectedBook = books.find((b) => b.id === form.book_id)
 
   const validate = () => {
-    const e: Partial<BorrowFormData> = {}
+    const e: Partial<Record<keyof BorrowFormData, string>> = {}
     if (!form.book_id) e.book_id = t.selectBookError
     if (!form.borrower_name.trim()) e.borrower_name = t.borrowerNameRequired
-    if (!form.due_date || form.due_date <= today) e.due_date = t.dueDateFutureError
+    if (!form.borrow_days || form.borrow_days < 1) e.borrow_days = t.borrowDaysRequired
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -72,9 +78,10 @@ export function BorrowPage() {
       borrower_note: form.borrower_note.trim() || undefined,
       staff_id: profile!.id,
       borrow_date: today,
-      due_date: form.due_date,
+      due_date: addDays(form.borrow_days),
     })
-    setForm({ book_id: '', borrower_name: '', borrower_note: '', due_date: defaultDue })
+    setForm({ book_id: '', borrower_name: '', borrower_note: '', borrow_days: DEFAULT_DURATION })
+    setDurationMode(DEFAULT_DURATION)
     setBookSearch('')
     setErrors({})
     setSubmitted(true)
@@ -184,14 +191,66 @@ export function BorrowPage() {
                   hint={t.optional}
                 />
 
-                <Input
-                  label={t.dueDateLabel}
-                  type="date"
-                  value={form.due_date}
-                  onChange={(e) => set('due_date', e.target.value)}
-                  min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
-                  error={errors.due_date}
-                />
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700">{t.borrowDurationLabel}</label>
+                  <div className="flex flex-wrap gap-2">
+                    {DURATION_PRESETS.map((days) => (
+                      <button
+                        key={days}
+                        type="button"
+                        onClick={() => {
+                          setDurationMode(days)
+                          setForm((f) => ({ ...f, borrow_days: days }))
+                          setErrors((e) => ({ ...e, borrow_days: undefined }))
+                        }}
+                        className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors
+                          ${durationMode === days
+                            ? 'bg-gray-900 border-gray-900 text-white'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        {days} {t.daysSuffix}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setDurationMode(CUSTOM_DURATION)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors
+                        ${durationMode === CUSTOM_DURATION
+                          ? 'bg-gray-900 border-gray-900 text-white'
+                          : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      {t.customDuration}
+                    </button>
+                  </div>
+                  {durationMode === CUSTOM_DURATION && (
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder={t.customDaysPlaceholder}
+                      value={form.borrow_days || ''}
+                      onChange={(e) => {
+                        const days = parseInt(e.target.value, 10)
+                        setForm((f) => ({ ...f, borrow_days: Number.isNaN(days) ? 0 : days }))
+                        setErrors((err) => ({ ...err, borrow_days: undefined }))
+                      }}
+                      error={errors.borrow_days}
+                    />
+                  )}
+                  {durationMode !== CUSTOM_DURATION && errors.borrow_days && (
+                    <p className="text-xs text-red-500">{errors.borrow_days}</p>
+                  )}
+                  {form.borrow_days > 0 && (
+                    <p className="text-xs text-gray-400">
+                      {t.dueDatePreview}{' '}
+                      {new Date(addDays(form.borrow_days)).toLocaleDateString(locale, {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  )}
+                </div>
 
                 <Button type="submit" className="w-full">
                   <BookMarked className="w-4 h-4" />

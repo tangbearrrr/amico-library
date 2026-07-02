@@ -75,7 +75,12 @@ const en = {
   notePhoneLabel: 'Note / Phone',
   notePhonePlaceholder: 'Phone number, department, etc.',
   optional: 'Optional',
-  dueDateLabel: 'Due Date *',
+  borrowDurationLabel: 'Borrow Duration *',
+  daysSuffix: 'days',
+  customDuration: 'Custom',
+  customDaysPlaceholder: 'Number of days',
+  dueDatePreview: 'Due back on',
+  borrowDaysRequired: 'Enter a valid number of days',
   recordBorrowBtn: 'Record Borrow',
   borrowSuccess: '✓ Borrow recorded successfully',
   activeBorrows: 'Active Borrows',
@@ -89,7 +94,6 @@ const en = {
   markReturned: 'Mark Returned',
   selectBookError: 'Select a book',
   borrowerNameRequired: 'Borrower name is required',
-  dueDateFutureError: 'Due date must be in the future',
 
   // History page
   historySubtitle: 'Complete borrow & return audit trail',
@@ -228,7 +232,12 @@ const th: typeof en = {
   notePhoneLabel: 'หมายเหตุ / เบอร์โทร',
   notePhonePlaceholder: 'เบอร์โทร, แผนก, ฯลฯ',
   optional: 'ไม่บังคับ',
-  dueDateLabel: 'วันครบกำหนด *',
+  borrowDurationLabel: 'ระยะเวลายืม *',
+  daysSuffix: 'วัน',
+  customDuration: 'กำหนดเอง',
+  customDaysPlaceholder: 'จำนวนวัน',
+  dueDatePreview: 'ครบกำหนดวันที่',
+  borrowDaysRequired: 'กรุณาระบุจำนวนวันที่ถูกต้อง',
   recordBorrowBtn: 'บันทึกการยืม',
   borrowSuccess: '✓ บันทึกการยืมสำเร็จ',
   activeBorrows: 'การยืมที่ค้างอยู่',
@@ -242,7 +251,6 @@ const th: typeof en = {
   markReturned: 'ยืนยันคืน',
   selectBookError: 'กรุณาเลือกหนังสือ',
   borrowerNameRequired: 'กรุณากรอกชื่อผู้ยืม',
-  dueDateFutureError: 'วันครบกำหนดต้องเป็นวันในอนาคต',
 
   // History page
   historySubtitle: 'บันทึกการยืม-คืนทั้งหมด',
