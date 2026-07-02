@@ -4,17 +4,17 @@ import { useBooks } from '../hooks/useBooks'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
-import { getAvailableCopies, isOverdue } from '../lib/utils'
+import { getAvailableCopies, isOverdue, getBorrowerNamesForPhone, getBorrowerDisplayName } from '../lib/utils'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Button } from '../components/ui/Button'
-import { Input, Textarea } from '../components/ui/Input'
+import { Input } from '../components/ui/Input'
 import { Badge } from '../components/ui/Badge'
-import { ConfirmModal } from '../components/ui/Modal'
+import { Modal, ConfirmModal } from '../components/ui/Modal'
 
 interface BorrowFormData {
   book_id: string
   borrower_name: string
-  borrower_note: string
+  borrower_phone: string
   borrow_days: number
 }
 
@@ -30,23 +30,37 @@ export function BorrowPage() {
   const { profile } = useAuth()
   const { t, locale } = useLanguage()
   const { books } = useBooks()
-  const { borrowRecords, addBorrowRecord, returnBook } = useBorrowRecords()
+  const { borrowRecords, addBorrowRecord, returnBook, setMainBorrowerName } = useBorrowRecords()
 
   const [form, setForm] = useState<BorrowFormData>({
     book_id: '',
     borrower_name: '',
-    borrower_note: '',
+    borrower_phone: '',
     borrow_days: DEFAULT_DURATION,
   })
   const [durationMode, setDurationMode] = useState<number>(DEFAULT_DURATION)
   const [errors, setErrors] = useState<Partial<Record<keyof BorrowFormData, string>>>({})
   const [submitted, setSubmitted] = useState(false)
   const [returnTarget, setReturnTarget] = useState<string | null>(null)
+  const [mergeTarget, setMergeTarget] = useState<string | null>(null)
+  const [multiNameOpen, setMultiNameOpen] = useState(false)
   const [bookSearch, setBookSearch] = useState('')
   const [bookOpen, setBookOpen] = useState(false)
 
-  const set = (field: 'book_id' | 'borrower_name' | 'borrower_note', value: string) =>
+  const set = (field: 'book_id' | 'borrower_name' | 'borrower_phone', value: string) =>
     setForm((f) => ({ ...f, [field]: value }))
+
+  const matchingNames = getBorrowerNamesForPhone(form.borrower_phone.trim(), borrowRecords)
+
+  const setPhone = (value: string) => {
+    const names = getBorrowerNamesForPhone(value.trim(), borrowRecords)
+    setForm((f) => ({
+      ...f,
+      borrower_phone: value,
+      borrower_name: names.length === 1 ? names[0] : f.borrower_name,
+    }))
+    setMultiNameOpen(names.length > 1)
+  }
 
   const availableBooks = books.filter(
     (b) => getAvailableCopies(b.id, b, borrowRecords) > 0
@@ -64,6 +78,7 @@ export function BorrowPage() {
     const e: Partial<Record<keyof BorrowFormData, string>> = {}
     if (!form.book_id) e.book_id = t.selectBookError
     if (!form.borrower_name.trim()) e.borrower_name = t.borrowerNameRequired
+    if (!form.borrower_phone.trim()) e.borrower_phone = t.borrowerPhoneRequired
     if (!form.borrow_days || form.borrow_days < 1) e.borrow_days = t.borrowDaysRequired
     setErrors(e)
     return Object.keys(e).length === 0
@@ -75,12 +90,12 @@ export function BorrowPage() {
     await addBorrowRecord({
       book_id: form.book_id,
       borrower_name: form.borrower_name.trim(),
-      borrower_note: form.borrower_note.trim() || undefined,
+      borrower_phone: form.borrower_phone.trim(),
       staff_id: profile!.id,
       borrow_date: today,
       due_date: addDays(form.borrow_days),
     })
-    setForm({ book_id: '', borrower_name: '', borrower_note: '', borrow_days: DEFAULT_DURATION })
+    setForm({ book_id: '', borrower_name: '', borrower_phone: '', borrow_days: DEFAULT_DURATION })
     setDurationMode(DEFAULT_DURATION)
     setBookSearch('')
     setErrors({})
@@ -175,20 +190,19 @@ export function BorrowPage() {
                 </div>
 
                 <Input
+                  label={t.borrowerPhoneLabel}
+                  value={form.borrower_phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  error={errors.borrower_phone}
+                  placeholder={t.borrowerPhonePlaceholder}
+                />
+
+                <Input
                   label={t.borrowerNameLabel}
                   value={form.borrower_name}
                   onChange={(e) => set('borrower_name', e.target.value)}
                   error={errors.borrower_name}
                   placeholder={t.borrowerNamePlaceholder}
-                />
-
-                <Textarea
-                  label={t.notePhoneLabel}
-                  value={form.borrower_note}
-                  onChange={(e) => set('borrower_note', e.target.value)}
-                  placeholder={t.notePhonePlaceholder}
-                  rows={2}
-                  hint={t.optional}
                 />
 
                 <div className="space-y-1.5">
@@ -309,10 +323,8 @@ export function BorrowPage() {
                           className={`transition-colors ${overdue ? 'bg-red-50/30 hover:bg-red-50/60' : 'hover:bg-gray-50'}`}
                         >
                           <td className="px-4 py-3">
-                            <div className="text-sm font-medium text-gray-900">{record.borrower_name}</div>
-                            {record.borrower_note && (
-                              <div className="text-xs text-gray-400 truncate max-w-[100px]">{record.borrower_note}</div>
-                            )}
+                            <div className="text-sm font-medium text-gray-900">{getBorrowerDisplayName(record, borrowRecords)}</div>
+                            <div className="text-xs text-gray-400 truncate max-w-[100px]">{record.borrower_phone}</div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-sm text-gray-700 line-clamp-1">{book?.title ?? '—'}</div>
@@ -360,6 +372,43 @@ export function BorrowPage() {
         title={t.confirmReturnTitle}
         message={t.confirmReturnMsg}
         confirmLabel={t.markReturned}
+      />
+
+      <Modal open={multiNameOpen} onClose={() => setMultiNameOpen(false)} title={t.multipleNamesTitle} size="sm">
+        <p className="text-sm text-gray-500 mb-4">{t.multipleNamesMsg1}</p>
+        <div className="flex flex-wrap gap-2">
+          {matchingNames.map((name) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => {
+                setMultiNameOpen(false)
+                setMergeTarget(name)
+              }}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </Modal>
+
+      <ConfirmModal
+        open={!!mergeTarget}
+        onClose={() => setMergeTarget(null)}
+        onConfirm={() => {
+          if (mergeTarget) {
+            set('borrower_name', mergeTarget)
+            setMainBorrowerName(form.borrower_phone.trim(), mergeTarget)
+          }
+        }}
+        title={t.multipleNamesTitle}
+        message={
+          mergeTarget
+            ? `${t.multipleNamesMsg1} ${matchingNames.join(' | ')}. "${mergeTarget}" ${t.multipleNamesMsg2}`
+            : ''
+        }
+        confirmLabel={t.setMainName}
       />
     </AppLayout>
   )

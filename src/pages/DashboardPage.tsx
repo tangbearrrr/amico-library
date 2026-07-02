@@ -3,7 +3,7 @@ import { useBooks } from '../hooks/useBooks'
 import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
-import { isOverdue } from '../lib/utils'
+import { isOverdue, getBorrowerDisplayName } from '../lib/utils'
 import { Badge } from '../components/ui/Badge'
 import { AppLayout } from '../components/layout/AppLayout'
 
@@ -122,10 +122,8 @@ export function DashboardPage() {
                       return (
                         <tr key={record.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 sm:px-5 py-3.5">
-                            <div className="text-sm font-medium text-gray-900">{record.borrower_name}</div>
-                            {record.borrower_note && (
-                              <div className="text-xs text-gray-400 hidden sm:block">{record.borrower_note}</div>
-                            )}
+                            <div className="text-sm font-medium text-gray-900">{getBorrowerDisplayName(record, borrowRecords)}</div>
+                            <div className="text-xs text-gray-400 hidden sm:block">{record.borrower_phone}</div>
                           </td>
                           <td className="px-4 sm:px-5 py-3.5">
                             <div className="text-sm text-gray-700">{book?.title ?? '—'}</div>

@@ -39,5 +39,18 @@ export function useBorrowRecords() {
     if (data) setBorrowRecords((prev) => prev.map((r) => (r.id === recordId ? data : r)))
   }
 
-  return { borrowRecords, loading, addBorrowRecord, returnBook }
+  // Makes `name` the canonical borrower name for every existing record on this phone.
+  const setMainBorrowerName = async (phone: string, name: string) => {
+    const { error } = await supabase
+      .from('borrow_records')
+      .update({ borrower_name: name })
+      .eq('borrower_phone', phone)
+    if (!error) {
+      setBorrowRecords((prev) =>
+        prev.map((r) => (r.borrower_phone === phone ? { ...r, borrower_name: name } : r))
+      )
+    }
+  }
+
+  return { borrowRecords, loading, addBorrowRecord, returnBook, setMainBorrowerName }
 }

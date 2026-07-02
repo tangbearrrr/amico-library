@@ -4,7 +4,7 @@ import { useBorrowRecords } from '../hooks/useBorrowRecords'
 import { useBooks } from '../hooks/useBooks'
 import { useProfiles } from '../hooks/useProfiles'
 import { useLanguage } from '../hooks/useLanguage'
-import { isOverdue } from '../lib/utils'
+import { isOverdue, getBorrowerDisplayName } from '../lib/utils'
 import { AppLayout } from '../components/layout/AppLayout'
 import { Badge } from '../components/ui/Badge'
 
@@ -41,12 +41,12 @@ export function HistoryPage() {
   }, [borrowRecords, search, statusFilter, dateFrom, dateTo])
 
   const exportCSV = () => {
-    const headers = ['Borrower', 'Note', 'Book', 'Author', 'Staff', 'Borrow Date', 'Due Date', 'Return Date', 'Status']
+    const headers = ['Borrower', 'Phone', 'Book', 'Author', 'Staff', 'Borrow Date', 'Due Date', 'Return Date', 'Status']
     const rows = filtered.map((r) => {
       const book = getBook(r.book_id)
       const staff = getProfile(r.staff_id)
       const status = r.status === 'returned' ? 'Returned' : isOverdue(r) ? 'Overdue' : 'Borrowed'
-      return [r.borrower_name, r.borrower_note ?? '', book?.title ?? '', book?.author ?? '', staff?.full_name ?? '', r.borrow_date, r.due_date, r.return_date ?? '', status]
+      return [r.borrower_name, r.borrower_phone, book?.title ?? '', book?.author ?? '', staff?.full_name ?? '', r.borrow_date, r.due_date, r.return_date ?? '', status]
     })
     const csv = [headers, ...rows].map((row) => row.map((c) => `"${c}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
@@ -196,8 +196,8 @@ export function HistoryPage() {
                           className={`transition-colors ${overdue ? 'bg-red-50/30 hover:bg-red-50/50' : 'hover:bg-gray-50'}`}
                         >
                           <td className="px-4 py-3.5">
-                            <div className="text-sm font-medium text-gray-900">{record.borrower_name}</div>
-                            {record.borrower_note && <div className="text-xs text-gray-400 hidden sm:block">{record.borrower_note}</div>}
+                            <div className="text-sm font-medium text-gray-900">{getBorrowerDisplayName(record, borrowRecords)}</div>
+                            <div className="text-xs text-gray-400 hidden sm:block">{record.borrower_phone}</div>
                           </td>
                           <td className="px-4 py-3.5">
                             <div className="text-sm text-gray-700 max-w-[140px] sm:max-w-[160px] truncate">{book?.title ?? '—'}</div>

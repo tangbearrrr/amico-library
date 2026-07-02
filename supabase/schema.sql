@@ -32,7 +32,7 @@ CREATE TABLE borrow_records (
   id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   book_id        uuid        NOT NULL REFERENCES books(id) ON DELETE CASCADE,
   borrower_name  text        NOT NULL,
-  borrower_note  text,
+  borrower_phone text        NOT NULL,
   staff_id       uuid        REFERENCES profiles(id) ON DELETE SET NULL,
   borrow_date    date        NOT NULL DEFAULT current_date,
   due_date       date        NOT NULL,

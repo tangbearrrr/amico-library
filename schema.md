@@ -3,7 +3,8 @@
 Four tables backed by Supabase (PostgreSQL). No public access — every table has RLS enabled and all rows are reachable only by authenticated users whose `profiles` row exists.
 
 Full setup script: [`supabase/schema.sql`](supabase/schema.sql)  
-Access requests migration: [`supabase/access_requests_migration.sql`](supabase/access_requests_migration.sql)
+Access requests migration: [`supabase/access_requests_migration.sql`](supabase/access_requests_migration.sql)  
+Borrower phone migration: [`supabase/borrower_phone_migration.sql`](supabase/borrower_phone_migration.sql)
 
 ---
 
@@ -84,7 +85,7 @@ One row per lending transaction. Never deleted in normal operation — forms the
 | `id` | `uuid` | PK DEFAULT gen_random_uuid() | — |
 | `book_id` | `uuid` | NOT NULL, FK → `books(id)` ON DELETE CASCADE | Cascade ensures history is cleaned up when a book is deleted |
 | `borrower_name` | `text` | NOT NULL | Free-text; borrowers are not system users |
-| `borrower_note` | `text` | — | Optional memo entered by staff |
+| `borrower_phone` | `text` | NOT NULL | Free-text; borrower's phone number |
 | `staff_id` | `uuid` | FK → `profiles(id)` ON DELETE SET NULL | Staff member who logged the transaction |
 | `borrow_date` | `date` | NOT NULL DEFAULT current_date | — |
 | `due_date` | `date` | NOT NULL, CHECK ≥ borrow_date | — |

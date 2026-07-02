@@ -32,7 +32,7 @@ export interface BorrowRecord {
   id: string
   book_id: string
   borrower_name: string
-  borrower_note?: string
+  borrower_phone: string
   staff_id: string
   borrow_date: string
   due_date: string
