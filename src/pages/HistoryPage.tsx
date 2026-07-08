@@ -162,7 +162,7 @@ export function HistoryPage() {
                     <tr className="border-b border-gray-50">
                       {[
                         { label: t.borrower, mobile: true },
-                        { label: t.phone, mobile: false },
+                        { label: t.phone, mobile: true },
                         { label: t.book, mobile: true },
                         { label: t.staffCol, mobile: false },
                         { label: t.borrowDate, mobile: false },
@@ -199,7 +199,7 @@ export function HistoryPage() {
                           <td className="px-4 py-3.5">
                             <div className="text-sm font-medium text-gray-900">{getBorrowerDisplayName(record, borrowRecords)}</div>
                           </td>
-                          <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                          <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
                             {record.borrower_phone}
                           </td>
                           <td className="px-4 py-3.5">
