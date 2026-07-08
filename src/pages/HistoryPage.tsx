@@ -162,6 +162,7 @@ export function HistoryPage() {
                     <tr className="border-b border-gray-50">
                       {[
                         { label: t.borrower, mobile: true },
+                        { label: t.phone, mobile: false },
                         { label: t.book, mobile: true },
                         { label: t.staffCol, mobile: false },
                         { label: t.borrowDate, mobile: false },
@@ -181,7 +182,7 @@ export function HistoryPage() {
                   <tbody className="divide-y divide-gray-50">
                     {filtered.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-400">
+                        <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-400">
                           {t.noRecordsFound}
                         </td>
                       </tr>
@@ -197,7 +198,9 @@ export function HistoryPage() {
                         >
                           <td className="px-4 py-3.5">
                             <div className="text-sm font-medium text-gray-900">{getBorrowerDisplayName(record, borrowRecords)}</div>
-                            <div className="text-xs text-gray-400 hidden sm:block">{record.borrower_phone}</div>
+                          </td>
+                          <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                            {record.borrower_phone}
                           </td>
                           <td className="px-4 py-3.5">
                             <div className="text-sm text-gray-700 max-w-[140px] sm:max-w-[160px] truncate">{book?.title ?? '—'}</div>
